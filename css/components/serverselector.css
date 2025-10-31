@@ -1,0 +1,69 @@
+/* css/components/serverselector.css */
+
+.server-selector-container {
+    font-family: 'Roboto', sans-serif;
+    background-color: #2D2D3A;
+    border-radius: 8px;
+    padding: 20px;
+    margin-top: 20px;
+    width: 50%;
+    box-sizing: border-box;
+}
+
+.info-box {
+    background-color: #00b3ff;
+    color: #ffffff;
+    padding: 20px;
+    border-radius: 8px;
+    font-size: 16px;
+    line-height: 1.5;
+    text-align: center;
+    margin-top: 20px;
+}
+
+.selector-area {
+    display: flex;
+    flex-direction: column;
+}
+
+.selector-row {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.selector-row .row-label {
+    font-size: 18px;
+    font-weight: 500;
+    color: #e8eaed;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    min-width: 80px;
+}
+
+.selector-buttons {
+    display: flex;
+    gap: 10px;
+}
+
+.server-btn {
+    background-color: #43445A;
+    color: #e8eaed;
+    border: none;
+    border-radius: 6px;
+    padding: 10px 20px;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.server-btn:hover {
+    background-color: #5a5b70;
+}
+
+.server-btn.active {
+    background-color: #00b3ff;
+    color: #ffffff;
+}

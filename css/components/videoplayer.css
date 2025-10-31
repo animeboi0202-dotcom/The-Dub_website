@@ -1,0 +1,20 @@
+/* css/components/videoplayer.css */
+
+/* Main content area that handles layout */
+.content-area {
+    display: flex;
+    flex-direction: column; 
+    align-items: center;    
+    padding: 40px 20px;
+}
+
+/* A simple container for the player */
+.video-container {
+    width: 50%; 
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+    border-radius: 8px;
+    overflow: hidden;
+    /* This makes sure the container has the same aspect ratio as the video inside */
+    aspect-ratio: 16 / 9; 
+    background-color: #000;
+}
