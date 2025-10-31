@@ -1,0 +1,16 @@
+.ad-banner-container {
+    width: 100%;
+    margin-top: 20px;
+    position: relative;
+    display: flex;
+    justify-content: center;
+    min-height: 50px;
+}
+
+/* --- NEW DEBUGGING STYLE --- */
+/* This rule will only affect the container for the first ad banner. */
+/* It's designed to make the container's location and size obvious. */
+.ad-banner-1 {
+    background-color: rgba(255, 82, 82, 0.2); /* A light, semi-transparent red */
+    border: 1px dashed #ff5252; /* A dashed red border */
+}
