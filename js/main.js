@@ -8,5 +8,5 @@ createToolbar();
 createVideoPlayer();
 
 // Create the banners in the desired order
-createAdBanner1();
-createAdBanner2();
+// createAdBanner1();
+//createAdBanner2();
