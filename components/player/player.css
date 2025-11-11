@@ -1,0 +1,39 @@
+/* /components/player/player.css */
+
+/* The main container for the iframe and server buttons */
+.player-scaffold {
+    width: 50%;
+    max-width: 854px; /* Standard 16:9 width */
+    margin: 0 auto; /* Center the entire component */
+}
+
+/* This style hides the main player until it's needed */
+.player-scaffold.hidden {
+    display: none;
+}
+
+/* This wrapper holds the iframe and maintains a 16:9 aspect ratio */
+.iframe-wrapper {
+    position: relative;
+    background-color: #000;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+    aspect-ratio: 16 / 9;
+}
+
+/* This ensures the iframe fills the wrapper perfectly */
+.iframe-wrapper iframe {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    border: 0;
+}
+
+@media (max-width: 768px) {
+    .player-scaffold {
+        width: 95%; /* Use more horizontal space */
+    }
+}

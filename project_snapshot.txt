@@ -1,38 +1,91 @@
 File: ./index.html
 
-<!-- index.html -->
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/png" href="/images/fav.png">
+
+    <!-- NEW: Scripts required for the Ad Player -->
+    <script src="/libs/blockadblock.js"></script>
     
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@500&display=swap" rel="stylesheet">
-    
-    <link rel="stylesheet" href="css/style.css">
-    
-    <title>The-AI-Dub</title>
+    <title>PIRATE</title>
+    <style>
+        /* Base page styles to match the component theme */
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: #202124;
+            color: #e8eaed;
+        }
+
+        /* NEW: This centers all player and ad components horizontally */
+        .content-area {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+    </style>
 </head>
 <body>
-    <!-- The body should be empty. JS builds the content. -->
+    <!-- MODIFIED: The page is now built entirely by the external main.js file -->
+    <script type="module" src="./main.js"></script>
 </body>
-
-<!-- This line LOADS and RUNS the code from js/main.js -->
-<script src="js/main.js" type="module"></script>
 </html>
 
 ____________________________________
 
-File: ./README.md
+File: ./main.js
 
-# The-Dub_website
+// ./main.js
+
+import { createToolbar } from './components/basecomponents/Toolbar.js';
+import { createLayout } from './components/basecomponents/Layout.js';
+import { createFooter } from './components/basecomponents/Footer.js';
+import { createHomePlayer } from './components/player/HomePlayer.js'; // Import the new, simple player
+
+/**
+ * Main function to assemble the ad-free homepage.
+ */
+function buildPage() {
+    // 1. Build the basic page structure.
+    createToolbar();
+    createLayout();
+    createFooter();
+
+    // 2. Define the single video for the homepage player.
+    const homeVideoEmbed = `<iframe src="https://www.xvideos.com/embedframe/uplkhmdd73e" frameborder=0 scrolling=no allowfullscreen=allowfullscreen></iframe>`;
+
+    // 3. Create the simple homepage video player.
+    createHomePlayer(homeVideoEmbed);
+
+    // 4. Add the custom message below the player.
+    const contentArea = document.querySelector('.content-area');
+    if (contentArea) {
+        const messageHTML = `
+            <h2 style="
+                text-align: center; 
+                font-weight: 700; 
+                font-size: 26px; 
+                color: #e8eaed; 
+                margin-top: 40px; 
+                width: 50%;
+            ">
+                Please be patient more naughty content incoming.
+            </h2>
+        `;
+        contentArea.insertAdjacentHTML('beforeend', messageHTML);
+    }
+}
+
+// Start building the page once the DOM is ready.
+document.addEventListener('DOMContentLoaded', buildPage);
 
 ____________________________________
 
-File: ./copy.py
+File: ./zcopy.py
 
 import os
 
@@ -106,134 +159,227 @@ if __name__ == '__main__':
 
 ____________________________________
 
-File: ./9ca3f72455d220b61ad3f4dc75e6697a.html
+File: ./dsa.js
 
-9ca3f72455d220b61ad3f4dc75e6697a
-
-____________________________________
-
-File: ./js/main.js
-
-import { createToolbar } from './components/Toolbar.js';
-
-// Import the video player component
-import { createVideoPlayer } from './components/VideoPlayer.js';
-
-// Run the functions to build the page
-createToolbar();
-createVideoPlayer();
+// This file is intentionally left empty.
+// It is used as "bait" for adblocker detection libraries.
+// Adblockers will see the name "ads.js" and block this file from loading.
+// The detection script then checks if this file was blocked to determine
+// if an adblocker is active.
 
 ____________________________________
 
-File: ./js/components/VideoPlayer.js
+File: ./utils/dsablockerCheck.js
 
-// js/components/VideoPlayer.js
+// /utils/adblockerCheck.js
 
-// --- 1. THE CONFIGURATION AREA ---
-const serverList = [
-    { name: "Server 1", url: "https://cdn.plyr.io/static/demo/View_From_A_Blue_Moon_Trailer-576p.mp4" },
-    { name: "Server 2", url: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4" },
-    { name: "Server 3", url: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4" },
-    { name: "Server 4", url: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4" },
-    { name: "Server 5", url: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerEscapes.mp4" }
-];
-// --- END CONFIGURATION AREA ---
+import { createAdblockMessage } from '../components/dialgoge/blockdsaMessage.js';
 
-// Helper functions to load CSS and JS
-function loadCSS(href) { if (!document.querySelector(`link[href="${href}"]`)) { const link = document.createElement('link'); link.rel = 'stylesheet'; link.href = href; document.head.appendChild(link); } }
-function loadJS(src) { return new Promise((resolve, reject) => { const script = document.createElement('script'); script.src = src; script.onload = resolve; script.onerror = reject; document.body.appendChild(script); }); }
+/**
+ * Checks for an adblocker and shows a message if one is detected.
+ * This function should be called after the main page components are built.
+ */
+export function runAdblockCheck() {
+    // First, check if the BlockAdBlock library was successfully loaded.
+    // If it's missing, we can't run the check.
+    if (typeof BlockAdBlock === 'undefined') {
+        console.error("AdblockCheck Error: The BlockAdBlock library is not loaded on this page.");
+        return;
+    }
 
-// --- The simple function to handle button clicks ---
-function setupServerButtons(player) {
-    const serverButtons = document.querySelectorAll('.server-btn');
-    serverButtons.forEach((button, index) => {
-        button.addEventListener('click', () => {
-            // Remove 'active' from all buttons
-            serverButtons.forEach(btn => btn.classList.remove('active'));
-            // Add 'active' to the clicked button
-            button.classList.add('active');
-
-            // Get the new source URL
-            const newSource = serverList[index].url;
-            
-            // Tell the player to change its source
-            player.source = {
-                type: 'video',
-                sources: [{ src: newSource, type: 'video/mp4' }],
-            };
-            console.log(`Switched to: ${newSource}`);
-        });
+    // Configure a new instance of the adblock checker.
+    // We set checkOnLoad to false because we want to trigger it manually.
+    const adBlocker = new BlockAdBlock({
+        checkOnLoad: false,
+        resetOnEnd: true,
     });
+
+    // Define what happens when an adblocker IS detected.
+    adBlocker.onDetected(() => {
+        console.log("Adblocker detected. Displaying popup.");
+        createAdblockMessage();
+    });
+
+    // Define what happens when an adblocker IS NOT detected.
+    adBlocker.onNotDetected(() => {
+        console.log("Adblocker not detected. Nothing to do.");
+        // Per your request, we do nothing here.
+    });
+
+    // Manually start the check.
+    adBlocker.check();
 }
 
-export async function createVideoPlayer() {
-    // Load all necessary CSS
-    loadCSS('https://cdn.plyr.io/3.7.8/plyr.css');
-    loadCSS('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css');
-    loadCSS('css/components/videoplayer.css');
-    loadCSS('css/components/serverselector.css');
+____________________________________
 
-    // Dynamically generate the button HTML from the serverList
-    const buttonsHTML = serverList.map((server, index) => {
-        const isActive = index === 0 ? 'active' : '';
-        return `<button class="server-btn ${isActive}">${server.name}</button>`;
-    }).join('');
+File: ./components/basecomponents/Footer.js
 
-    // Define the HTML for the entire component
-    const fullComponentHTML = `
-        <main class="content-area">
-            <div class="video-container">
-                <video id="player" playsinline controls>
-                    <source src="${serverList[0].url}" type="video/mp4" />
-                </video>
-            </div>
-            <div class="server-selector-container">
-                <div class="selector-area">
-                    <div class="selector-row">
-                        <div class="row-label"><i class="fas fa-server"></i><span>Server:</span></div>
-                        <div class="selector-buttons">${buttonsHTML}</div>
-                    </div>
-                </div>
-                <div class="info-box">If current server doesn't work please try other servers.</div>
-            </div>
-        </main>
+// components/basecomponents/Footer.js
+
+function _injectCSS() {
+    const styleId = 'footer-styles';
+    if (document.getElementById(styleId)) {
+        return;
+    }
+
+    const css = `
+        /* --- STICKY FOOTER LOGIC --- */
+        body {
+            min-height: 100vh;
+            min-height: 100dvh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .content-area {
+            flex-grow: 1;
+        }
+
+        /* --- Original Footer Styling --- */
+        .site-footer {
+            text-align: center;
+            padding: 20px;
+            margin-top: 40px; 
+            color: #a0a0a0;
+            font-size: clamp(11px, 3vw, 14px);
+            font-weight: 500;
+            flex-shrink: 0;
+            box-sizing: border-box; /* Add this for consistent padding behavior */
+        }
+
+          /* --- FINAL MOBILE STYLES BASED ON YOUR INSTRUCTIONS --- */
+        @media (max-width: 768px) {
+            body > .site-footer {
+                /* 1. Make the footer box 90% wide and center it */
+                width: 90%;
+                margin: 40px auto 20px auto; /* Manages vertical and horizontal centering */
+                
+                /* 2. Remove all internal padding so the text can fill the box */
+                padding: 0;
+
+                /* 3. Force the text to stay on a single line */
+                white-space: nowrap;
+                
+                /* 4. Make the font size scale with the screen width to fill the container */
+                /* The 3.7vw value is a calculated starting point. You can adjust it 
+                   slightly (e.g., to 3.6vw or 3.8vw) to get the perfect fit. */
+                font-size: 3.7vw;
+            }
+        }
     `;
     
-    // Add the component to the page
-    document.body.insertAdjacentHTML('beforeend', fullComponentHTML);
+    const style = document.createElement('style');
+    style.id = styleId;
+    style.textContent = css;
+    document.head.appendChild(style);
+}
 
-    // Load Plyr JS and initialize the player
-    await loadJS('https://cdn.plyr.io/3.7.8/plyr.js');
-    const player = new Plyr('#player');
+// This function creates the HTML for our footer and adds it to the page.
+// NO CHANGES ARE NEEDED HERE.
+function createFooter() {
+    _injectCSS(); // Inject the updated styles
 
-    // Set up the button functionality
-    setupServerButtons(player);
+    const footerHTML = `
+        <footer class="site-footer">
+            &copy; No-Rights Received, this is running on pure vibes &#128151;
+        </footer>
+    `;
+
+    document.body.insertAdjacentHTML('beforeend', footerHTML);
+}
+
+// Export the function so it can be used anywhere
+export { createFooter };
+
+____________________________________
+
+File: ./components/basecomponents/Layout.js
+
+// components/basecomponents/Layout.js
+
+// This component's only job is to create the main content container
+// that other components will be placed inside.
+export function createLayout() {
+    // Check if a content area already exists to avoid duplicates.
+    if (document.querySelector('.content-area')) {
+        return;
+    }
+    const layoutHTML = `<main class="content-area"></main>`;
+    document.body.insertAdjacentHTML('beforeend', layoutHTML);
 }
 
 ____________________________________
 
-File: ./js/components/Toolbar.js
+File: ./components/basecomponents/Toolbar.js
 
-// This function dynamically loads a CSS file into the <head>
-function loadCSS(href) {
-    const link = document.createElement('link');
-    link.rel = 'stylesheet';
-    link.href = href;
-    document.head.appendChild(link);
+// components/basecomponents/Toolbar.js
+
+// This function injects the component's CSS into the <head>
+function _injectCSS() {
+    const styleId = 'toolbar-styles';
+    if (document.getElementById(styleId)) {
+        return;
+    }
+
+    const css = `
+        /* Top Bar Styling */
+        .top-bar {
+            display: flex;
+            align-items: center;
+            margin-left: 20px;
+            padding: 24px;
+            height: 64px;
+            background-color: rgba(32, 33, 36, 0.7);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            color: #e8eaed;
+            font-size: 40px;
+            font-weight: 900;
+        }
+
+        /* NEW: Style for the toolbar link to preserve appearance */
+        .top-bar a {
+            text-decoration: none;
+            color: inherit;
+            cursor: pointer;
+        }
+
+        @media (max-width: 768px) {
+            .top-bar {
+                height: 56px; /* Reduced height */
+                font-size: 28px; /* Smaller title font */
+                margin-left: 0; /* Remove side margin */
+                padding: 16px; /* Adjust padding */
+            }
+    `;
+
+    const style = document.createElement('style');
+    style.id = styleId;
+    style.textContent = css;
+    document.head.appendChild(style);
 }
 
-// This function creates the HTML for our top bar and adds it to the page.
+/**
+ * MODIFIED: This function now creates the HTML for our top bar and makes the
+ * title a link on all pages except for the homepage.
+ */
 function createToolbar() {
-    // First, load the component's specific CSS
-    loadCSS('css/components/toolbar.css');
+    _injectCSS(); // Inject the styles
+
+    // Check if the current page is the homepage.
+    const isHomePage = window.location.pathname === '/' || window.location.pathname.endsWith('/index.html');
+
+    // Conditionally create the content. If it's not the homepage, wrap the span in a link.
+    const toolbarContent = isHomePage
+        ? `<span>PIRATE</span>`
+        : `<a href="/pages/list/"><span>PIRATE</span></a>`;
 
     const toolbarHTML = `
         <header class="top-bar">
-            <span>PIRATE</span>
+            ${toolbarContent}
         </header>
     `;
 
-    // Add the HTML to the beginning of the <body>
     document.body.insertAdjacentHTML('afterbegin', toolbarHTML);
 }
 
@@ -242,133 +388,1979 @@ export { createToolbar };
 
 ____________________________________
 
-File: ./css/style.css
+File: ./components/messages/MessageBanner.js
 
-/* General body styling */
-body {
-    margin: 0;
-    font-family: 'Roboto', sans-serif;
-    background-color: #202124;
-    color: #ffffff;
+// components/messages/MessageBanner.js
+
+function _injectCSS() {
+    const styleId = 'messagebanner-styles';
+    if (document.getElementById(styleId)) return;
+
+    const css = `
+        .message-banner {
+            background-color: #2D2D3A; border: 1px dashed #43445A;
+            border-radius: 8px; height: 90px; width: 100%;
+            display: flex; align-items: center;
+            justify-content: center; padding: 0 20px; box-sizing: border-box;
+        }
+        .message-banner-text {
+            color: #e8eaed; font-size: 18px; font-weight: 500; text-align: center;
+        }
+
+        /* --- NEW: MOBILE STYLES --- */
+        @media (max-width: 768px) {
+            .message-banner-text {
+                /* Reduces the font size to match the other banners on mobile */
+                font-size: 15px;
+                font-weight: 600;
+            }
+        }
+    `;
+    const style = document.createElement('style');
+    style.id = styleId;
+    style.textContent = css;
+    document.head.appendChild(style);
+}
+
+function createMessageBanner(parentElement) {
+    _injectCSS();
+    const bannerContainer = document.createElement('div');
+    bannerContainer.className = 'message-banner';
+    const bannerText = document.createElement('p');
+    bannerText.className = 'message-banner-text';
+    bannerText.textContent = 'PLEASE SCROLL BACK TO THE TOP! SORRY FOR THE INCONVENIENCE';
+    bannerContainer.appendChild(bannerText);
+
+    if (parentElement) {
+        parentElement.appendChild(bannerContainer);
+    } else {
+        console.error("MessageBanner Error: A parentElement must be provided.");
+    }
+}
+
+export { createMessageBanner };
+
+____________________________________
+
+File: ./components/messages/ContactBanner.js
+
+// components/messages/ContactBanner.js
+
+function _injectCSS() {
+    const styleId = 'contactbanner-styles';
+    if (document.getElementById(styleId)) return;
+
+    const css = `
+        .contact-banner {
+            background-color: #2D2D3A; border: 1px dashed #43445A;
+            border-radius: 8px; height: 90px; width: 100%;
+            display: flex; align-items: center;
+            justify-content: center; padding: 0 20px; box-sizing: border-box;
+        }
+        .contact-banner-text {
+            color: #e8eaed; font-size: 18px; font-weight: 500; text-align: center;
+        }
+        .contact-banner-text a { color: #00b3ff; text-decoration: none; }
+        .contact-banner-text a:hover { text-decoration: underline; }
+
+        /* --- NEW: MOBILE STYLES --- */
+        @media (max-width: 768px) {
+            .contact-banner-text {
+                /* Reduces the font size for better readability on small screens */
+                font-size: 15px;
+                font-weight: 600;
+            }
+        }
+    `;
+    const style = document.createElement('style');
+    style.id = styleId;
+    style.textContent = css;
+    document.head.appendChild(style);
+}
+
+function createContactBanner(parentElement) {
+    _injectCSS();
+    const bannerContainer = document.createElement('div');
+    bannerContainer.className = 'contact-banner';
+    const bannerText = document.createElement('p');
+    bannerText.className = 'contact-banner-text';
+    bannerText.innerHTML = 'To put your ads here, feel free to contact <a href="https://x.com/canyouhearme67" target="_blank" rel="noopener noreferrer">@Twitter</a>.';
+    bannerContainer.appendChild(bannerText);
+
+    if (parentElement) {
+        parentElement.appendChild(bannerContainer);
+    } else {
+        console.error("ContactBanner Error: A parentElement must be provided.");
+    }
+}
+
+export { createContactBanner };
+
+____________________________________
+
+File: ./components/messages/Info.js
+
+// /components/messages/Info.js
+
+/**
+ * Injects the CSS for the info banner component.
+ */
+function _injectCSS() {
+    const styleId = 'infobanner-styles';
+    if (document.getElementById(styleId)) return;
+
+    const css = `
+        /* The main banner container, styled to match other site banners */
+        .info-banner {
+            width: 100%;
+            background-color: #2D2D3A;
+            border: 1px dashed #43445A;
+            border-radius: 8px;
+            padding: 20px 25px;
+            margin-top: 25px; /* Space between player and this banner */
+            box-sizing: border-box;
+            text-align: center;
+        }
+
+        /* The main heading for desktop */
+        .info-banner-heading {
+            margin: 0 0 12px 0; /* Adds 8px space below the heading */
+            padding: 0;
+            color: #00b3ff; /* Same color as the popup's 'Continue' button */
+            font-size: 28px;
+            font-weight: 900;
+            text-decoration: underline;
+        }
+
+        /* The smaller sub-text */
+        .info-banner-subtext {
+            margin: 0;
+            padding: 0;
+            color: #ffffffff;
+            font-size: 16px;
+            font-weight: 600;
+            line-height: 1.5;
+        }
+
+        /* --- RESPONSIVE OVERRIDES for Mobile --- */
+        @media (max-width: 768px) {
+            .info-banner {
+                padding: 15px 20px;
+            }
+
+            .info-banner-heading {
+                /* Forces text to a single line */
+                white-space: nowrap;
+                /* Dynamically scales font size to fill the container width */
+                font-size: 5.5vw;
+            }
+
+            .info-banner-subtext {
+                font-size: 14px;
+            }
+        }
+    `;
+    const style = document.createElement('style');
+    style.id = styleId;
+    style.textContent = css;
+    document.head.appendChild(style);
+}
+
+/**
+ * Creates the Info Banner and attaches it to a parent element.
+ * @param {HTMLElement} parentElement - The element to append this banner to.
+ */
+export function createInfoBanner(parentElement) {
+    if (!parentElement) {
+        console.error("InfoBanner Error: A parentElement must be provided.");
+        return;
+    }
+
+    _injectCSS();
+
+    // The hardcoded content for the banner
+    const headingText = "This is the main Video Player !!";
+    const subText = "An ad will play first. The content will appear after the ad is complete or skipped.";
+
+    const bannerHTML = `
+        <div class="info-banner">
+            <h2 class="info-banner-heading">${headingText}</h2>
+            <p class="info-banner-subtext">${subText}</p>
+        </div>
+    `;
+
+    // Append the newly created banner to the designated parent
+    parentElement.insertAdjacentHTML('beforeend', bannerHTML);
 }
 
 ____________________________________
 
-File: ./css/components/serverselector.css
+File: ./components/das/layout.js
 
-/* css/components/serverselector.css */
+// ./components/ads/layout.js
 
-.server-selector-container {
-    font-family: 'Roboto', sans-serif;
-    background-color: #2D2D3A;
-    border-radius: 8px;
-    padding: 20px;
-    margin-top: 20px;
+import { createAdsterraBanner } from './components/dasterra_banner.js';
+import { createAdsterraNative } from './components/dasterra-native.js';
+import { createHilltopBanner } from './components/hilltop-banner.js';
+import { createAdcashBanner } from './components/dascash-banner.js';
+import { createAdcashNative } from './components/dascash-native.js';
+import { createContactBanner } from '../messages/ContactBanner.js';
+import { createMessageBanner } from '../messages/MessageBanner.js';
+
+function _injectCSS() {
+    const styleId = 'ad-layout-styles';
+    if (document.getElementById(styleId)) return;
+
+    const css = `
+        .ad-layout-container {
+            display: flex; flex-direction: column; align-items: center;
+            gap: 25px; width: 50%; max-width: 854px; margin-top: 40px;
+        }
+        .ad-slot {
+            width: 100%; min-height: 50px; display: flex;
+            justify-content: center; align-items: center;
+        }
+
+        @media (max-width: 768px) {
+            .ad-layout-container {
+                width: 95%;
+            }
+    `;
+    const style = document.createElement('style');
+    style.id = styleId;
+    style.textContent = css;
+    document.head.appendChild(style);
+}
+
+export function createAdLayout() {
+    _injectCSS();
+    const contentArea = document.querySelector('.content-area');
+    if (!contentArea) {
+        console.error("AdLayout Error: Could not find '.content-area'.");
+        return;
+    }
+
+    const adLayoutContainer = document.createElement('div');
+    adLayoutContainer.className = 'ad-layout-container';
+    contentArea.appendChild(adLayoutContainer);
+
+    function _createAdSlot(parent) {
+        const slot = document.createElement('div');
+        slot.className = 'ad-slot';
+        parent.appendChild(slot);
+        return slot;
+    }
+
+    createContactBanner(_createAdSlot(adLayoutContainer));
+    createAdsterraNative(_createAdSlot(adLayoutContainer));
+    createContactBanner(_createAdSlot(adLayoutContainer));
+    createAdsterraBanner(_createAdSlot(adLayoutContainer));
+    createContactBanner(_createAdSlot(adLayoutContainer));
+    createHilltopBanner(_createAdSlot(adLayoutContainer));
+    createContactBanner(_createAdSlot(adLayoutContainer));
+    createAdcashBanner(_createAdSlot(adLayoutContainer));
+    createContactBanner(_createAdSlot(adLayoutContainer));
+    createAdcashNative(_createAdSlot(adLayoutContainer));
+    createMessageBanner(_createAdSlot(adLayoutContainer));
+}
+
+____________________________________
+
+File: ./components/das/components/dasterra_banner.js
+
+// ./components/ads/banners/adsterra_banner.js
+
+/**
+ * Creates and injects an Adsterra banner ad into a specified parent element.
+ * @param {HTMLElement} parentElement - The HTML element where the ad should be placed.
+ */
+export function createAdsterraBanner(parentElement) {
+    if (!parentElement) {
+        console.error("AdsterraBanner Error: A valid parentElement must be provided.");
+        return;
+    }
+
+    // Create the first script tag to define the ad options.
+    const optionsScript = document.createElement('script');
+    optionsScript.type = 'text/javascript';
+    optionsScript.textContent = `
+        atOptions = {
+            'key' : 'e46a63efa3abc45990cb36cb960e6900',
+            'format' : 'iframe',
+            'height' : 250,
+            'width' : 300,
+            'params' : {}
+        };
+    `;
+
+    // Create the second script tag that loads the ad from the Adsterra server.
+    const invokeScript = document.createElement('script');
+    invokeScript.type = 'text/javascript';
+    invokeScript.src = '//www.highperformanceformat.com/e46a63efa3abc45990cb36cb960e6900/invoke.js';
+
+    // Append the scripts to the designated parent element in the correct order.
+    parentElement.appendChild(optionsScript);
+    parentElement.appendChild(invokeScript);
+}
+
+____________________________________
+
+File: ./components/das/components/dascash-native.js
+
+// ./components/ads/banners/adcash-native.js
+
+/**
+ * Creates and injects an Adcash native ad into a specified parent element.
+ * @param {HTMLElement} parentElement - The HTML element where the ad should be placed.
+ */
+export function createAdcashNative(parentElement) {
+    if (!parentElement) {
+        console.error("AdcashNative Error: A valid parentElement must be provided.");
+        return;
+    }
+
+    // 1. Create the placeholder div that the ad script will target.
+    const placeholderDiv = document.createElement('div');
+    placeholderDiv.id = 'awn-z10592854';
+
+    // 2. Create the main script element with all the ad logic.
+    const mainScript = document.createElement('script');
+    mainScript.setAttribute('data-cfasync', 'false');
+    mainScript.type = 'text/javascript';
+    mainScript.textContent = `
+    var adcashMacros = {};
+    var zoneNativeSett={container:"awn",baseUrl:"onclickalgo.com/script/native.php",r:[10592854]};
+    var urls={cdnUrls:["//superonclick.com","//geniusonclick.com"],cdnIndex:0,rand:Math.random(),events:["click","mousedown","touchstart"],useFixer:!0,onlyFixer:!1,fixerBeneath:!1};function acPrefetch(e){var t,n=document.createElement("link");t=void 0!==document.head?document.head:document.getElementsByTagName("head")[0],n.rel="dns-prefetch",n.href=e,t.appendChild(n);var r=document.createElement("link");r.rel="preconnect",r.href=e,t.appendChild(r)}var nativeInit=new function(){var a="",i=Math.floor(1e12*Math.random()),o=Math.floor(1e12*Math.random()),t=window.location.protocol,c={_0:"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=",encode:function(e){for(var t,n,r,a,i,o,c="",s=0;s<e.length;)a=(t=e.charCodeAt(s++))>>2,t=(3&t)<<4|(n=e.charCodeAt(s++))>>4,i=(15&n)<<2|(r=e.charCodeAt(s++))>>6,o=63&r,isNaN(n)?i=o=64:isNaN(r)&&(o=64),c=c+this._0.charAt(a)+this._0.charAt(t)+this._0.charAt(i)+this._0.charAt(o);return c}};this.init=function(){e()};var e=function(){var e=document.createElement("script");e.setAttribute("data-cfasync",!1),e.src="//pagead2.googlesyndication.com/pagead/js/adsbygoogle.js",e.onerror=function(){!0,r(),n()},e.onload=function(){nativeForPublishers.init()},nativeForPublishers.attachScript(e)},n=function(){""!==a?s(i,t):setTimeout(n,250)},r=function(){var t=new(window.RTCPeerConnection||window.mozRTCPeerConnection||window.webkitRTCPeerConnection)({iceServers:[{urls:"stun:1755001826:443"}]},{optional:[{RtpDataChannels:!0}]});t.onicecandidate=function(e){!e.candidate||e.candidate&&-1==e.candidate.candidate.indexOf("srflx")||!(e=/([0-9]{1,3}(\\.[0-9]{1,3}){3}|[a-f0-9]{1,4}(:[a-f0-9]{1,4}){7})/.exec(e.candidate.candidate)[1])||e.match(/^(192\\.168\\.|169\\.254\\.|10\\.|172\\.(1[6-9]|2\\d|3[01]))/)||e.match(/^[a-f0-9]{1,4}(:[a-f0-9]{1,4}){7}$/)||(a=e)},t.createDataChannel(""),t.createOffer(function(e){t.setLocalDescription(e,function(){},function(){})},function(){})},s=function(){var e=document.createElement("script");e.setAttribute("data-cfasync",!1),e.src=t+"//"+a+"/"+c.encode(i+"/"+(i+5))+".js",e.onload=function(){for(var e in zoneNativeSett.r)d(zoneNativeSett.r[e])},nativeForPublishers.attachScript(e)},d=function(e){var t="jsonp"+Math.round(1000001*Math.random()),n=[i,parseInt(e)+i,o,"callback="+t],r="http://"+a+"/"+c.encode(n.join("/"));new native_request(r,e,t).jsonp()}},nativeForPublishers=new function(){var n=this,e=Math.random();n.getRand=function(){return e},this.getNativeRender=function(){if(!n.nativeRenderLoaded){var e=document.createElement("script");e.setAttribute("data-cfasync","false"),e.src=urls.cdnUrls[urls.cdnIndex]+"/script/native_render.js",e.onerror=function(){throw new Error("cdnerr")},e.onload=function(){n.nativeRenderLoaded=!0},n.attachScript(e)}},this.getNativeResponse=function(){if(!n.nativeResponseLoaded){var e=document.createElement("script");e.setAttribute("data-cfasync","false"),e.src=urls.cdnUrls[urls.cdnIndex]+"/script/native_server.js",e.onerror=function(){throw new Error("cdnerr")},e.onload=function(){n.nativeResponseLoaded=!0},n.attachScript(e)}},this.attachScript=function(e){var t;void 0!==document.scripts&&(t=document.scripts[0]),void 0===t&&(t=document.getElementsByTagName("script")[0]),t.parentNode.insertBefore(e,t)},this.fetchCdnScripts=function(){if(urls.cdnIndex<urls.cdnUrls.length)try{n.getNativeRender(),n.getNativeResponse()}catch(e){urls.cdnIndex++,n.fetchCdnScripts()}},this.scriptsLoaded=function(){if(n.nativeResponseLoaded&&n.nativeRenderLoaded){var e=[];for(zone in zoneNativeSett.r)document.getElementById(zoneNativeSett.container+"-z"+zoneNativeSett.r[zone])&&(e[zoneNativeSett.r[zone]]=new native_request("//"+zoneNativeSett.baseUrl+"?nwpsv=1&",zoneNativeSett.r[zone]),e[zoneNativeSett.r[zone]].build());for(var t in e)e[t].jsonp("callback",(e[t],function(e,t){setupAd(zoneNativeSett.container+"-z"+t,e)}))}else setTimeout(n.scriptsLoaded,250)},this.init=function(){var e;if(n.insertBotTrapLink(),0===window.location.href.indexOf("file://"))for(e=0;e<urls.cdnUrls.length;e++)0===urls.cdnUrls[e].indexOf("//")&&(urls.cdnUrls[e]="http:"+urls.cdnUrls[e]);for(e=0;e<urls.cdnUrls.length;e++)acPrefetch(urls.cdnUrls[e]);n.fetchCdnScripts(),n.scriptsLoaded()},this.insertBotTrapLink=function(){var e=document.createElement("a");e.href=window.location.protocol+"//onclickalgo.com/al/visit.php?al=1,4",e.style.display="none",e.style.visibility="hidden",e.style.position="relative",e.style.left="-1000px",e.style.top="-1000px",e.style.color="#fff",e.link='<a href="http://onclickalgo.com/al/visit.php?al=1,5"></a>',e.innerHTML="",document.body.appendChild(e)}};nativeInit.init();
+    `;
+
+    // 3. Create the invisible tracking link.
+    const trackingLink = document.createElement('a');
+    trackingLink.href = 'https://onclickalgo.com/al/visit.php?al=1,7';
+    trackingLink.style.cssText = 'position:absolute;top:-1000px;left:-1000px;width:1px;height:1px;visibility:hidden;display:none;border:medium none;background-color:transparent;';
+
+    // 4. Create the noscript tag with its own invisible link.
+    const noScriptTag = document.createElement('noscript');
+    const noScriptLink = document.createElement('a');
+    noScriptLink.href = 'https://onclickalgo.com/al/visit.php?al=1,6';
+    noScriptLink.style.cssText = 'position:absolute;top:-1000px;left:-1000px;width:1px;height:1px;visibility:hidden;display:none;border:medium none;background-color:transparent;';
+    noScriptTag.appendChild(noScriptLink);
+
+    // 5. Append all the required elements to the designated parent element.
+    parentElement.appendChild(placeholderDiv);
+    parentElement.appendChild(mainScript);
+    parentElement.appendChild(trackingLink);
+    parentElement.appendChild(noScriptTag);
+}
+
+____________________________________
+
+File: ./components/das/components/dasterra-native.js
+
+// ./components/ads/banners/adsterra-native.js
+
+/**
+ * Creates and injects an Adsterra native ad into a specified parent element.
+ * @param {HTMLElement} parentElement - The HTML element where the ad should be placed.
+ */
+export function createAdsterraNative(parentElement) {
+    if (!parentElement) {
+        console.error("AdsterraNative Error: A valid parentElement must be provided.");
+        return;
+    }
+
+    // Create the script tag that loads the native ad.
+    const invokeScript = document.createElement('script');
+    invokeScript.async = true;
+    invokeScript.setAttribute('data-cfasync', 'false');
+    invokeScript.src = '//pl27999413.effectivegatecpm.com/e88986acbf2aa4038d1e29a3cddd1a81/invoke.js';
+
+    // Create the div that the native ad script will use as a container.
+    const nativeDiv = document.createElement('div');
+    nativeDiv.id = 'container-e88986acbf2aa4038d1e29a3cddd1a81';
+
+    // Append the script and the container div to the designated parent element.
+    parentElement.appendChild(invokeScript);
+    parentElement.appendChild(nativeDiv);
+}
+
+____________________________________
+
+File: ./components/das/components/hilltop-banner.js
+
+// ./components/ads/banners/hilltop-banner.js
+
+/**
+ * Creates and injects a Hilltop banner ad into a specified parent element.
+ * @param {HTMLElement} parentElement - The HTML element where the ad should be placed.
+ */
+export function createHilltopBanner(parentElement) {
+    if (!parentElement) {
+        console.error("HilltopBanner Error: A valid parentElement must be provided.");
+        return;
+    }
+
+    // The provided ad code is an IIFE (Immediately Invoked Function Expression).
+    // We will replicate its logic by creating and configuring a script element directly.
+
+    const adScript = document.createElement('script');
+
+    // Set the script's properties exactly as specified by the ad provider.
+    adScript.settings = {};
+    adScript.src = "//stiffswimming.com/bdXgVbs/d.G/lj0CYoWEcM/Menmh9KuAZrURlrkbP_TeYk2ROOTMID4XNXz/Yjt/Npj/YJ5AMkjfg/3VNuwj";
+    adScript.async = true;
+    adScript.referrerPolicy = 'no-referrer-when-downgrade';
+    
+    // Append the configured script to the designated parent element to execute it.
+    parentElement.appendChild(adScript);
+}
+
+____________________________________
+
+File: ./components/das/components/dascash-banner.js
+
+// ./components/ads/banners/adcash-banner.js
+
+/**
+ * Creates and injects an Adcash banner activation script into a specified parent element.
+ * NOTE: This component assumes the main Adcash library (aclib.js) has already been
+ * loaded on the page where this component is being used.
+ * @param {HTMLElement} parentElement - The HTML element where the ad should be placed.
+ */
+export function createAdcashBanner(parentElement) {
+    if (!parentElement) {
+        console.error("AdcashBanner Error: A valid parentElement must be provided.");
+        return;
+    }
+
+    // This script calls the runBanner function from the main aclib.js library.
+    const activationScript = document.createElement('script');
+    activationScript.type = 'text/javascript';
+    activationScript.textContent = `
+        aclib.runBanner({
+            zoneId: '10592838'
+        });
+    `;
+
+    // Append the activation script to the designated parent element.
+    // The ad will be rendered inside this parent element.
+    parentElement.appendChild(activationScript);
+}
+
+____________________________________
+
+File: ./components/dialgoge/WelcomePopup.js
+
+// components/dialgoge/WelcomePopup.js
+
+function _injectCSS() {
+    const styleId = 'welcomepopup-styles';
+    if (document.getElementById(styleId)) return;
+
+    const css = `
+        .welcome-popup-backdrop {
+            position: fixed; top: 0; left: 0; width: 100vw;
+            height: 100vh; height: 100dvh;
+            z-index: 10000;
+            background-color: #202124;
+            box-sizing: border-box;
+
+            /* --- DESKTOP CENTERING (DEFAULT) --- */
+            /* This will perfectly center the dialog on larger screens */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 15px; /* Padding for desktop view */
+        }
+        
+        .welcome-popup-dialog {
+            background-color: #2d2d3a;
+            border-radius: 12px;
+            padding: 28px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            max-width: 500px;
+            width: 100%; /* Will respect parent's padding in flex mode */
+            box-sizing: border-box;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .welcome-popup-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .welcome-popup-icon {
+            width: 24px;
+            height: 24px;
+            color: #00b3ff;
+            flex-shrink: 0;
+        }
+
+        .welcome-popup-title {
+            color: #ffffff;
+            font-size: 24px;
+            font-weight: 600;
+            margin: 0;
+            line-height: 1;
+        }
+
+        .welcome-popup-message {
+            margin: 0;
+            color: #e8eaed;
+            font-size: 17px;
+            font-weight: 500;
+            line-height: 1.6;
+            text-align: left;
+            width: fit-content;
+            align-self: center;
+        }
+
+        .welcome-popup-button {
+            background-color: #00b3ff;
+            color: #ffffff;
+            border: none;
+            border-radius: 8px;
+            padding: 12px 24px;
+            font-size: 15px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background-color 0.2s;
+            align-self: center;
+            margin-top: 8px;
+        }
+        .welcome-popup-button:hover {
+            background-color: #0099e6;
+        }
+
+        /* --- MOBILE OVERRIDES --- */
+        @media (max-width: 768px) {
+            .welcome-popup-backdrop {
+                /* On mobile, we don't use flex for positioning */
+                display: block;
+            }
+
+            .welcome-popup-dialog {
+                /* --- MOBILE POSITIONING (40% HEIGHT) --- */
+                position: absolute;
+                top: 40%;
+                /* This vertically centers the dialog on the 40% line */
+                transform: translateY(-50%);
+
+                /* This is the key to fixing the padding issue */
+                /* It creates a 15px gutter on both sides */
+                left: 15px;
+                right: 15px;
+                width: auto; /* Allow left/right to control the width */
+
+                /* Other mobile refinements */
+                padding: 24px;
+                gap: 12px;
+            }
+
+            .welcome-popup-icon {
+                width: 20px;
+                height: 20px;
+            }
+            .welcome-popup-title {
+                font-size: 20px;
+            }
+            .welcome-popup-message {
+                font-size: 16px;
+            }
+        }
+    `;
+
+    const style = document.createElement('style');
+    style.id = styleId;
+    style.textContent = css;
+    document.head.appendChild(style);
+}
+
+/**
+ * Creates and displays the final, refined notification popup.
+ */
+export function createWelcomePopup() {
+    const popupShownKey = 'welcomePopupShown';
+    
+    if (sessionStorage.getItem(popupShownKey) === 'true') {
+        return Promise.resolve();
+    }
+
+    return new Promise(resolve => {
+        _injectCSS();
+
+        // --- Content (Unchanged) ---
+        const iconSVG = `
+            <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 24 24">
+                <path d="M11 7h2v2h-2zm0 4h2v6h-2zm1-9C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8z"/>
+            </svg>
+        `;
+        const titleText = "Heads-Up";
+        const messageText = `This page includes Adult/Explicit ads please open in a safe environment.`;
+        const buttonText = "Continue";
+
+        // --- HTML Structure (Unchanged) ---
+        const backdrop = document.createElement('div');
+        backdrop.className = 'welcome-popup-backdrop';
+
+        const dialog = document.createElement('div');
+        dialog.className = 'welcome-popup-dialog';
+
+        const header = document.createElement('div');
+        header.className = 'welcome-popup-header';
+
+        const icon = document.createElement('div');
+        icon.className = 'welcome-popup-icon';
+        icon.innerHTML = iconSVG;
+
+        const title = document.createElement('h2');
+        title.className = 'welcome-popup-title';
+        title.textContent = titleText;
+
+        const message = document.createElement('p');
+        message.className = 'welcome-popup-message';
+        message.textContent = messageText;
+
+        const continueButton = document.createElement('button');
+        continueButton.className = 'welcome-popup-button';
+        continueButton.textContent = buttonText;
+        
+        header.appendChild(icon);
+        header.appendChild(title);
+
+        dialog.appendChild(header);
+        dialog.appendChild(message);
+        dialog.appendChild(continueButton);
+        
+        backdrop.appendChild(dialog);
+        document.body.appendChild(backdrop);
+
+        // --- Event Handling (Unchanged) ---
+        const onContinue = () => {
+            sessionStorage.setItem(popupShownKey, 'true');
+            backdrop.remove();
+            resolve();
+        };
+
+        continueButton.addEventListener('click', onContinue, { once: true });
+    });
+}
+
+____________________________________
+
+File: ./components/dialgoge/blockdsaMessage.js
+
+// components/dialgoge/AdblockMessage.js
+
+function _injectCSS() {
+    const styleId = 'adblock-popup-styles';
+    if (document.getElementById(styleId)) return; // Don't add styles twice
+
+    // CSS is nearly identical to WelcomePopup for consistency.
+    // Classes are renamed to avoid any potential style conflicts.
+    const css = `
+        .adblock-popup-backdrop {
+            position: fixed; top: 0; left: 0; width: 100vw;
+            height: 100vh; height: 100dvh;
+            z-index: 10001; /* Higher z-index to appear above other elements */
+            background-color: #202124; /* MODIFIED: Made the background opaque */
+            box-sizing: border-box;
+
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 15px;
+        }
+        
+        .adblock-popup-dialog {
+            background-color: #2d2d3a;
+            border-radius: 12px;
+            padding: 28px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            max-width: 500px;
+            width: 100%;
+            box-sizing: border-box;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .adblock-popup-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .adblock-popup-icon {
+            width: 24px;
+            height: 24px;
+            color: #ffc107; /* A warning yellow color */
+            flex-shrink: 0;
+        }
+
+        .adblock-popup-title {
+            color: #ffffff;
+            font-size: 24px;
+            font-weight: 600;
+            margin: 0;
+            line-height: 1;
+        }
+
+        .adblock-popup-message {
+            margin: 0;
+            color: #e8eaed;
+            font-size: 17px;
+            font-weight: 500;
+            line-height: 1.6;
+            text-align: left;
+            width: fit-content;
+            align-self: center;
+        }
+
+        /* MODIFIED: The button style is no longer needed but is kept for potential future use */
+        .adblock-popup-button {
+            background-color: #00b3ff;
+            color: #ffffff;
+            border: none;
+            border-radius: 8px;
+            padding: 12px 24px;
+            font-size: 15px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background-color 0.2s;
+            align-self: center;
+            margin-top: 8px;
+        }
+        .adblock-popup-button:hover {
+            background-color: #0099e6;
+        }
+
+        /* Mobile overrides */
+        @media (max-width: 768px) {
+            .adblock-popup-backdrop {
+                display: block;
+            }
+            .adblock-popup-dialog {
+                position: absolute;
+                top: 40%;
+                transform: translateY(-50%);
+                left: 15px;
+                right: 15px;
+                width: auto;
+                padding: 24px;
+                gap: 12px;
+            }
+            .adblock-popup-icon { width: 20px; height: 20px; }
+            .adblock-popup-title { font-size: 20px; }
+            .adblock-popup-message { font-size: 16px; }
+        }
+    `;
+
+    const style = document.createElement('style');
+    style.id = styleId;
+    style.textContent = css;
+    document.head.appendChild(style);
+}
+
+/**
+ * Creates and displays a popup message if it hasn't been shown in the current session.
+ */
+export function createAdblockMessage() {
+    const popupShownKey = 'adblockMessageShown';
+
+    // Don't show the popup if the user has already closed it in this session.
+    if (sessionStorage.getItem(popupShownKey) === 'true') {
+        return;
+    }
+
+    _injectCSS();
+
+    // --- Content for the Adblock Popup ---
+    const iconSVG = `
+        <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 24 24">
+            <path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zm0 10.99h7c-.53 4.12-3.28 7.79-7 8.94V12H5V6.3l7-3.11v8.8z"/>
+        </svg>
+    `;
+    const titleText = "Adblocker Detected";
+    // MODIFIED: The message text is now exactly what you requested.
+    const messageText = `Sorry but you must watch ads. You see renting GPU's is very expensive and this dubbing thing requires a lot of GPU's. So running these ads is the only way right now.`;
+    
+    // --- HTML Structure (Mirrors WelcomePopup) ---
+    const backdrop = document.createElement('div');
+    backdrop.className = 'adblock-popup-backdrop';
+
+    const dialog = document.createElement('div');
+    dialog.className = 'adblock-popup-dialog';
+
+    const header = document.createElement('div');
+    header.className = 'adblock-popup-header';
+
+    const icon = document.createElement('div');
+    icon.className = 'adblock-popup-icon';
+    icon.innerHTML = iconSVG;
+
+    const title = document.createElement('h2');
+    title.className = 'adblock-popup-title';
+    title.textContent = titleText;
+
+    const message = document.createElement('p');
+    message.className = 'adblock-popup-message';
+    message.textContent = messageText;
+
+    header.appendChild(icon);
+    header.appendChild(title);
+
+    dialog.appendChild(header);
+    dialog.appendChild(message);
+    
+    // MODIFIED: The button and its event listener have been removed.
+    // const closeButton = document.createElement('button'); ...
+    // dialog.appendChild(closeButton);
+    
+    backdrop.appendChild(dialog);
+    document.body.appendChild(backdrop);
+
+    // MODIFIED: Event handling for the button has been removed.
+    // const onClose = () => { ... };
+    // closeButton.addEventListener('click', onClose, { once: true });
+}
+
+____________________________________
+
+File: ./components/dialgoge/WarningBox.js
+
+// components/dialgoge/WarningBox.js
+
+function _injectCSS() {
+    const styleId = 'warningbox-styles';
+    if (document.getElementById(styleId)) {
+        return; // Styles already added
+    }
+
+    const css = `
+        /* 1. Defines the subtle pulsing animation */
+        @keyframes subtle-pulse {
+            0% {
+                border-color: #d32f2f; /* Original Red */
+            }
+            50% {
+                border-color: #ffaaaa; /* Lighter, soft red */
+            }
+            100% {
+                border-color: #d32f2f; /* Original Red */
+            }
+        }
+
+        /* 2. Your base styles for the warning box */
+        .warning-box {
+            width: fit-content; 
+            margin: 40px auto 0 auto; 
+            padding: 35px;
+            box-sizing: border-box;
+            border: 2px solid #d32f2f;
+            border-radius: 8px;
+            max-width: 90%;
+            
+            /* 3. Applies the animation with the new 5-second duration */
+            animation: subtle-pulse 5s ease-in-out infinite;
+        }
+
+        /* --- Your Text Styles (Unchanged) --- */
+        .warning-text {
+            margin: 0;
+            color: #e8eaed;
+            font-size: 19px;
+            line-height: 1.5;
+            font-weight: 500;
+            text-align: center;
+        }
+
+        .warning-text strong {
+            color: #39FF14;
+            font-weight: 900;
+            text-decoration: underline;
+        }
+
+        /* --- Your Mobile Styles (Unchanged) --- */
+        @media (max-width: 768px) {
+            .warning-box {
+                margin-top: 0px; 
+                padding: 20px;
+            }
+
+            .warning-text {
+                font-size: 14px;
+            }
+        }
+    `;
+
+    const style = document.createElement('style');
+    style.id = styleId;
+    style.textContent = css;
+    document.head.appendChild(style);
+}
+
+// MODIFIED: The function no longer accepts a 'message' argument.
+// The warning message is now hardcoded directly inside.
+export function createWarningBox() {
+    _injectCSS(); // Inject the component's styles
+
+    // --- NEW: The message is defined here ---
+    const warningMessage = `
+        All Of The Links Below Have Adult/Explicit Ads. Please Open In A Safe Environment.<br>
+        You Have Been <strong>WARNED!!</strong>
+    `;
+
+    const componentHTML = `
+        <div class="warning-box">
+            <p class="warning-text">${warningMessage}</p>
+        </div>
+    `;
+
+    // Find the main content area and add the box to it.
+    const contentArea = document.querySelector('.content-area');
+    if (contentArea) {
+        contentArea.insertAdjacentHTML('beforeend', componentHTML);
+    } else {
+        console.error("WarningBox Error: Could not find '.content-area' to attach to.");
+    }
+}
+
+____________________________________
+
+File: ./components/dialgoge/ServerSelect.js
+
+// /components/dialgoge/ServerSelect.js
+
+/**
+ * Injects the CSS needed for the Server Selector component.
+ */
+function _injectCSS() {
+    const styleId = 'serverselector-styles';
+    if (document.getElementById(styleId)) return;
+
+    const css = `
+        /* --- Styles for the Server Selector --- */
+        .server-selector-container {
+            font-family: 'Roboto', sans-serif;
+            background-color: #2D2D3A;
+            border-radius: 8px;
+            padding: 20px;
+            margin-top: 20px; /* This creates the space below the video player */
+            box-sizing: border-box;
+            width: 100%; /* Ensures it fills the parent player scaffold */
+        }
+
+        .selector-row {
+            display: flex;
+            align-items: center;
+            gap: 10px; /* Reduced gap to accommodate the icon */
+        }
+
+        /* Styles for the server icon */
+        .selector-icon {
+            width: 22px; /* Set a fixed size */
+            height: 22px;
+            color: #e8eaed; /* Match the label color */
+            flex-shrink: 0; /* Prevents the icon from shrinking */
+        }
+
+        .row-label {
+            font-size: 18px;
+            font-weight: 500;
+            color: #e8eaed;
+        }
+
+        .selector-buttons {
+            display: flex;
+            gap: 10px;
+        }
+
+        .server-btn {
+            background-color: #43445A;
+            color: #e8eaed;
+            border: none;
+            border-radius: 6px;
+            padding: 10px 20px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        .server-btn:hover {
+            background-color: #5a5b70;
+        }
+
+        /* MODIFIED: The .active style is the only one that matters now for the selected state */
+        .server-btn.active {
+            background-color: #00b3ff;
+            color: #ffffff;
+        }
+
+        /* --- Styles for the Info Box --- */
+        .info-box {
+            background-color: #00b3ff;
+            color: #ffffff;
+            padding: 20px;
+            border-radius: 8px;
+            font-size: 16px;
+            line-height: 1.5;
+            text-align: center;
+            margin-top: 20px;
+            font-weight: 700; 
+        }
+        
+        /* --- Responsive Styles --- */
+        @media (max-width: 768px) {
+            .selector-icon {
+                width: 20px;
+                height: 20px;
+            }
+            .row-label {
+                font-size: 16px;
+            }
+            .server-btn {
+                padding: 8px 14px;
+                font-size: 13px;
+            }
+        }
+    `;
+
+    const style = document.createElement('style');
+    style.id = styleId;
+    style.textContent = css;
+    document.head.appendChild(style);
+}
+
+/**
+ * Creates the server selection UI and handles its interactions.
+ * @param {HTMLElement} parentElement - The element to attach this component to.
+ * @param {Array} serverList - The list of server objects.
+ * @param {Function} onServerChange - A callback function to run when a server is changed.
+ */
+export function createServerSelector(parentElement, serverList, onServerChange) {
+    if (!parentElement || !serverList || serverList.length === 0) return;
+
+    _injectCSS();
+
+    // MODIFIED: The 'disabled' logic has been completely removed.
+    const buttonsHTML = serverList.map((server, index) =>
+        `<button class="server-btn ${index === 0 ? 'active' : ''}" data-index="${index}">${server.name}</button>`
+    ).join('');
+
+    const infoBoxText = "Please use a VPN! If the current server doesn't work try others.";
+
+    const componentHTML = `
+        <div class="server-selector-container">
+            <div class="selector-row">
+                <div class="selector-icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M2 20h20v-4H2v4zm2-3h2v2H4v-2zM2 4v4h20V4H2zm4 3H4V5h2v2zm-4 7h20v-4H2v4zm2-3h2v2H4v-2z"/>
+                    </svg>
+                </div>
+                <span class="row-label">Server:</span>
+                <div class="selector-buttons">${buttonsHTML}</div>
+            </div>
+            <div class="info-box">${infoBoxText}</div>
+        </div>
+    `;
+
+    parentElement.insertAdjacentHTML('beforeend', componentHTML);
+
+    // MODIFIED: The click listeners are now attached regardless of how many servers there are.
+    const serverButtons = parentElement.querySelectorAll('.server-btn');
+    serverButtons.forEach(button => {
+        button.addEventListener('click', () => {
+            // This logic now works for any number of buttons.
+            serverButtons.forEach(btn => btn.classList.remove('active'));
+            button.classList.add('active');
+            
+            const serverIndex = parseInt(button.dataset.index, 10);
+            const newEmbedCode = serverList[serverIndex].embedCode;
+            
+            if (typeof onServerChange === 'function') {
+                onServerChange(newEmbedCode);
+            }
+        });
+    });
+}
+
+____________________________________
+
+File: ./components/player/dasPlayer.js
+
+// /components/player/AdPlayer.js
+
+// NEW: Import the new InfoBanner component
+import { createInfoBanner } from '../messages/Info.js';
+
+/**
+ * Injects the necessary CSS for the ad player into the document's head.
+ */
+function _injectCSS() {
+    const styleId = 'adplayer-styles';
+    if (document.getElementById(styleId)) return;
+
+    // MODIFIED: All CSS for the heading and sub-text has been removed.
+    // This file is now only responsible for styling the player itself.
+    const css = `
+        .ad-player-scaffold {
+            width: 50%; max-width: 854px; margin: 0 auto;
+            display: flex; flex-direction: column; align-items: center;
+        }
+        .ad-player-scaffold.hidden { display: none; }
+
+        .ad-player-container {
+            width: 100%; background-color: #000; position: relative;
+            border-radius: 8px; overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            aspect-ratio: 16 / 9;
+        }
+        .ad-player-container video { width: 100%; height: 100%; }
+        .ad-container { position: absolute; top: 0; left: 0; width: 100%; height: 100%; }
+        .ad-play-button {
+            position: absolute; top: 50%; left: 50%;
+            transform: translate(-50%, -50%); width: 80px; height: 80px;
+            background-color: rgba(0, 0, 0, 0.6); border: 3px solid white;
+            border-radius: 50%; cursor: pointer; z-index: 100;
+            display: flex; justify-content: center; align-items: center;
+            transition: background-color 0.2s;
+        }
+        .ad-play-button:hover { background-color: rgba(0, 179, 255, 0.8); }
+        .ad-play-button::after {
+            content: ''; display: block; width: 0; height: 0;
+            border-top: 20px solid transparent;
+            border-bottom: 20px solid transparent;
+            border-left: 30px solid white; margin-left: 7px;
+        }
+
+        @media (max-width: 768px) {
+            .ad-player-scaffold { width: 95%; }
+        }
+    `;
+    
+    const style = document.createElement('style');
+    style.id = styleId;
+    style.textContent = css;
+    document.head.appendChild(style);
+}
+
+export function createAdPlayer(onAdCompleteCallback) {
+    _injectCSS();
+
+    // MODIFIED: The complex message HTML has been removed.
+    // The scaffold now only contains the player itself.
+    const playerHTML = `
+        <div id="ad-player-scaffold" class="ad-player-scaffold">
+            <div id="ad-player-container" class="ad-player-container">
+                <video id="ad-content-video"></video>
+                <div id="ad-container" class="ad-container"></div>
+                <div id="ad-play-button" class="ad-play-button"></div>
+            </div>
+        </div>
+    `;
+
+    const contentArea = document.querySelector('.content-area');
+    if (!contentArea) {
+        console.error("AdPlayer Error: Could not find '.content-area'.");
+        return;
+    }
+    contentArea.insertAdjacentHTML('beforeend', playerHTML);
+
+    // NEW: Find the scaffold we just created and use it as the parent
+    // for our new InfoBanner component.
+    const adPlayerScaffold = document.getElementById('ad-player-scaffold');
+    if (adPlayerScaffold) {
+        createInfoBanner(adPlayerScaffold);
+    }
+    
+    _setupPlayerInteractions(onAdCompleteCallback);
+}
+
+// This entire function remains unchanged.
+function _setupPlayerInteractions(onAdCompleteCallback) {
+    const adPlayerScaffold = document.getElementById('ad-player-scaffold');
+    const videoElement = document.getElementById('ad-content-video');
+    const adContainer = document.getElementById('ad-container');
+    const adPlayerContainer = document.getElementById('ad-player-container');
+    const playButton = document.getElementById('ad-play-button');
+    let adsManager = null;
+    let adDisplayContainer;
+    let adsLoader;
+    const adTagUrls = [
+        'https://liquidabroad.com/dam/FXz..d0GONCv_ZQGmUc/re/my9OuEZTU/1pkAPXTKYL2aOQTSE/4CMkjhEtVN/jTYW5/M/T/ggv/MuiYZHsSaYK71ApyidDDe0cx_',
+        'https://youradexchange.com/video/select.php?r=10592834'
+    ];
+    let currentAdTagIndex = 0;
+    function playAds() {
+        playButton.style.display = 'none';
+        if (!adDisplayContainer.isInitialized) adDisplayContainer.initialize();
+        const adsRequest = new google.ima.AdsRequest();
+        adsRequest.adTagUrl = adTagUrls[currentAdTagIndex];
+        adsRequest.linearAdSlotWidth = adPlayerContainer.clientWidth;
+        adsRequest.linearAdSlotHeight = adPlayerContainer.clientHeight;
+        adsLoader.requestAds(adsRequest);
+    }
+    function onPlayButtonClick() {
+        const footer = document.querySelector('.site-footer');
+        if (footer) {
+            footer.scrollIntoView({ behavior: 'auto' });
+        }
+        playAds();
+    }
+    if (window.google && window.google.ima) {
+        adDisplayContainer = new google.ima.AdDisplayContainer(adContainer, videoElement);
+        adsLoader = new google.ima.AdsLoader(adDisplayContainer);
+        adsLoader.addEventListener(google.ima.AdsManagerLoadedEvent.Type.ADS_MANAGER_LOADED, onAdsManagerLoaded);
+        adsLoader.addEventListener(google.ima.AdErrorEvent.Type.AD_ERROR, onAdError);
+        playButton.addEventListener('click', onPlayButtonClick);
+    } else {
+        console.error("AdPlayer Error: Google IMA SDK not found.");
+        onAdEnded();
+    }
+    function onAdsManagerLoaded(e) {
+        adsManager = e.getAdsManager(videoElement);
+        adsManager.addEventListener(google.ima.AdEvent.Type.COMPLETE, onAdEnded);
+        adsManager.addEventListener(google.ima.AdEvent.Type.SKIPPED, onAdEnded);
+        adsManager.addEventListener(google.ima.AdErrorEvent.Type.AD_ERROR, onAdError);
+        try {
+            adsManager.init(adPlayerContainer.clientWidth, adPlayerContainer.clientHeight, google.ima.ViewMode.NORMAL);
+            adsManager.start();
+        } catch (adError) {
+            onAdEnded();
+        }
+    }
+    function onAdEnded() {
+        adPlayerScaffold.classList.add('hidden');
+        if (onAdCompleteCallback && typeof onAdCompleteCallback === 'function') {
+            onAdCompleteCallback();
+        }
+        if (adsManager) adsManager.destroy();
+    }
+    function onAdError(adErrorEvent) {
+        console.error(`Ad Error on #${currentAdTagIndex + 1}:`, adErrorEvent.getError());
+        currentAdTagIndex++;
+        if (currentAdTagIndex < adTagUrls.length) {
+            playAds();
+        } else {
+            onAdEnded();
+        }
+    }
+    window.addEventListener('resize', () => {
+        if (adsManager) {
+            adsManager.resize(
+                adPlayerContainer.clientWidth, adPlayerContainer.clientHeight, google.ima.ViewMode.NORMAL
+            );
+        }
+    });
+}
+
+____________________________________
+
+File: ./components/player/player.css
+
+/* /components/player/player.css */
+
+/* The main container for the iframe and server buttons */
+.player-scaffold {
     width: 50%;
-    box-sizing: border-box;
+    max-width: 854px; /* Standard 16:9 width */
+    margin: 0 auto; /* Center the entire component */
 }
 
-.info-box {
-    background-color: #00b3ff;
-    color: #ffffff;
-    padding: 20px;
-    border-radius: 8px;
-    font-size: 16px;
-    line-height: 1.5;
-    text-align: center;
-    margin-top: 20px;
+/* This style hides the main player until it's needed */
+.player-scaffold.hidden {
+    display: none;
 }
 
-.selector-area {
-    display: flex;
-    flex-direction: column;
-}
-
-.selector-row {
-    display: flex;
-    align-items: center;
-    gap: 15px;
-}
-
-.selector-row .row-label {
-    font-size: 18px;
-    font-weight: 500;
-    color: #e8eaed;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    min-width: 80px;
-}
-
-.selector-buttons {
-    display: flex;
-    gap: 10px;
-}
-
-.server-btn {
-    background-color: #43445A;
-    color: #e8eaed;
-    border: none;
-    border-radius: 6px;
-    padding: 10px 20px;
-    font-size: 14px;
-    font-weight: 500;
-    cursor: pointer;
-    transition: background-color 0.2s;
-}
-
-.server-btn:hover {
-    background-color: #5a5b70;
-}
-
-.server-btn.active {
-    background-color: #00b3ff;
-    color: #ffffff;
-}
-
-____________________________________
-
-File: ./css/components/toolbar.css
-
-/* Top Bar Styling */
-.top-bar {
-    display: flex;
-    align-items: center;
-    margin-left: 20px;
-    padding: 24px;
-    height: 64px;
-    background-color: rgba(32, 33, 36, 0.7); /* Same color as the body but with 70% opacity */
-    backdrop-filter: blur(10px); /* Creates a frosted glass effect */
-    -webkit-backdrop-filter: blur(10px); /* For Safari compatibility */
-    color: #e8eaed;
-    font-size: 40px;
-    font-weight: 900;
-}
-
-____________________________________
-
-File: ./css/components/videoplayer.css
-
-/* css/components/videoplayer.css */
-
-/* Main content area that handles layout */
-.content-area {
-    display: flex;
-    flex-direction: column; 
-    align-items: center;    
-    padding: 40px 20px;
-}
-
-/* A simple container for the player */
-.video-container {
-    width: 50%; 
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+/* This wrapper holds the iframe and maintains a 16:9 aspect ratio */
+.iframe-wrapper {
+    position: relative;
+    background-color: #000;
     border-radius: 8px;
     overflow: hidden;
-    /* This makes sure the container has the same aspect ratio as the video inside */
-    aspect-ratio: 16 / 9; 
-    background-color: #000;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+    aspect-ratio: 16 / 9;
 }
+
+/* This ensures the iframe fills the wrapper perfectly */
+.iframe-wrapper iframe {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    border: 0;
+}
+
+@media (max-width: 768px) {
+    .player-scaffold {
+        width: 95%; /* Use more horizontal space */
+    }
+}
+
+____________________________________
+
+File: ./components/player/Player.js
+
+// /components/player/Player.js
+
+import { createServerSelector } from '../../components/dialgoge/ServerSelect.js';
+
+function loadCSS(href) {
+    if (!document.querySelector(`link[href="${href}"]`)) {
+        const link = document.createElement('link');
+        link.rel = 'stylesheet';
+        link.href = href;
+        document.head.appendChild(link);
+    }
+}
+
+export function createPlayer(serverList) {
+    if (!serverList || serverList.length === 0) return;
+    loadCSS('../../components/player/player.css');
+
+    // The player's HTML is now just the wrapper and the iframe area.
+    const componentHTML = `
+        <div id="main-content-player" class="player-scaffold hidden">
+            <div id="iframe-wrapper" class="iframe-wrapper">
+                ${serverList[0].embedCode}
+            </div>
+        </div>
+    `;
+
+    const contentArea = document.querySelector('.content-area');
+    if (!contentArea) return;
+    
+    contentArea.insertAdjacentHTML('beforeend', componentHTML);
+
+    // After creating the player, find its scaffold.
+    const playerScaffold = document.getElementById('main-content-player');
+    
+    // Define the callback function that will update the iframe.
+    const handleServerChange = (newEmbedCode) => {
+        const iframeWrapper = playerScaffold.querySelector('#iframe-wrapper');
+        if (iframeWrapper) {
+            iframeWrapper.innerHTML = newEmbedCode;
+        }
+    };
+
+    // Now, create the server selector and attach it to the player scaffold.
+    createServerSelector(playerScaffold, serverList, handleServerChange);
+}
+
+____________________________________
+
+File: ./components/player/HomePlayer.js
+
+// ./components/player/HomePlayer.js
+
+/**
+ * Injects the necessary CSS for the home player into the document's head.
+ */
+function _injectCSS() {
+    const styleId = 'homeplayer-styles';
+    if (document.getElementById(styleId)) return;
+
+    const css = `
+        .home-player-container {
+            width: 90%;
+            max-width: 854px; /* Standard 16:9 width */
+            margin: 40px auto 0 auto; /* Center it and give it some top margin */
+            background-color: #000;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            aspect-ratio: 16 / 9;
+            position: relative; /* Needed for the iframe positioning */
+        }
+
+        .home-player-container iframe {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            border: 0;
+        }
+    `;
+    const style = document.createElement('style');
+    style.id = styleId;
+    style.textContent = css;
+    document.head.appendChild(style);
+}
+
+/**
+ * Creates a simple, single-iframe player for the homepage.
+ * @param {string} embedCode - The full HTML string for the iframe.
+ */
+export function createHomePlayer(embedCode) {
+    if (!embedCode) {
+        console.error("HomePlayer Error: createHomePlayer() was called without embedCode.");
+        return;
+    }
+
+    _injectCSS();
+
+    const playerHTML = `
+        <div class="home-player-container">
+            ${embedCode}
+        </div>
+    `;
+
+    const contentArea = document.querySelector('.content-area');
+    if (contentArea) {
+        contentArea.insertAdjacentHTML('beforeend', playerHTML);
+    } else {
+        console.error("HomePlayer Error: Could not find '.content-area' to attach the player to.");
+    }
+}
+
+____________________________________
+
+File: ./components/mainpage/LinkList.js
+
+// components/mainpage/LinkList.js
+
+// --- NEW: Define the default list data directly in this file ---
+const defaultLinkData = [
+    { url: '../op1145/', text: 'OP-1145: ai eng dub' }
+    //{ url: '', text: '' }
+];
+
+// components/mainpage/LinkList.js
+
+function _injectCSS() {
+    const styleId = 'linklist-styles';
+    if (document.getElementById(styleId)) {
+        return;
+    }
+
+    const css = `
+        .link-list-container {
+            width: 50%;
+            margin: 60px auto 0 auto;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        .link-list {
+            display: block;
+            text-align: left;
+            list-style-type: none;
+            margin: 0;
+            padding: 0;
+        }
+
+        .link-list li {
+            margin-bottom: 25px;
+            position: relative;
+            padding-left: 35px;
+        }
+
+        .link-list li:last-child {
+            margin-bottom: 0;
+        }
+
+        /* MODIFIED: Changed bullet point color */
+        .link-list li::before {
+            content: '•';
+            color: #39FF14; /* This is the neon green from the warning box */
+            font-size: 35px;
+            font-weight: 900;
+            position: absolute;
+            left: 0;
+            top: 50%;
+            transform: translateY(-50%);
+        }
+
+        /* MODIFIED: Changed link text style */
+        .link-list a {
+            color: #00b3ff;
+            text-decoration: underline; /* Underline is now permanent */
+            font-size: 24px;          /* Increased font size for desktop */
+            font-weight: 900;           /* Changed to bold */
+            transition: color 0.2s ease;
+        }
+
+        /* MODIFIED: Changed hover effect */
+        .link-list a:hover {
+            color: #33c7ff; /* A slightly brighter blue for feedback */
+        }
+        
+        /* --- This is the existing mobile media query we will adjust --- */
+        @media (max-width: 768px) {
+            .link-list-container {
+                width: 90%;
+                margin-top: 40px;
+            }
+            .link-list li {
+                padding-left: 25px;
+            }
+            /* MODIFIED: Adjusted font size for mobile */
+            .link-list a {
+                font-size: 24px; /* A larger, more tappable size for mobile */
+            }
+        }
+    `;
+
+    const style = document.createElement('style');
+    style.id = styleId;
+    style.textContent = css;
+    document.head.appendChild(style);
+}
+
+// MODIFIED: The function now uses the default data if no data is passed in.
+export function createLinkList(linkData = defaultLinkData) {
+    if (!linkData || linkData.length === 0) {
+        console.error("LinkList Error: No link data was provided or is empty.");
+        return;
+    }
+
+    _injectCSS(); // Inject the component's styles
+
+    const linksHTML = linkData.map(item => `
+        <li><a href="${item.url}" target="_blank" rel="noopener noreferrer">${item.text}</a></li>
+    `).join('');
+
+    const componentHTML = `
+        <div class="link-list-container">
+            <ul class="link-list">${linksHTML}</ul>
+        </div>
+    `;
+
+    const contentArea = document.querySelector('.content-area');
+    if (contentArea) {
+        contentArea.insertAdjacentHTML('beforeend', componentHTML);
+    } else {
+        console.error("LinkList Error: Could not find '.content-area' to attach to.");
+    }
+}
+
+____________________________________
+
+File: ./libs/blockdsablock.js
+
+// BlockAdBlock
+//
+// Detects ad blockers
+//
+// (c) 2017-2022 Nicholas Westerhof
+//
+// This is a refactored and updated version of the original BlockAdBlock script
+// created by an unknown author. It is licensed under the MIT license.
+
+(function(window) {
+    // --- Private Variables ---
+    let BlockAdBlock = function(options) {
+        this._options = {
+            checkOnLoad: true,
+            resetOnEnd: true,
+            loopCheckTime: 50,
+            loopMaxNumber: 5,
+            baitClass: 'pub_300x250 pub_300x250m pub_728x90 text-ad text-banner text-adv text-ads text-advert text-advertisement text-advertisements',
+            baitStyle: 'width: 1px !important; height: 1px !important; position: absolute !important; left: -10000px !important; top: -1000px !important;',
+            debug: false,
+        };
+        this._var = {
+            version: '3.2.1',
+            bait: null,
+            checking: false,
+            loop: null,
+            loopNumber: 0,
+            event: {
+                detected: [],
+                notDetected: [],
+            }
+        };
+        if (options !== undefined) {
+            this.setOption(options);
+        }
+
+        let self = this;
+        let eventCallback = function() {
+            setTimeout(function() {
+                if (self._options.checkOnLoad === true) {
+                    if (self._var.bait === null) {
+                        self._creatBait();
+                    }
+                    setTimeout(function() {
+                        self.check();
+                    }, 1);
+                }
+            }, 1);
+        };
+
+        if (window.addEventListener) {
+            window.addEventListener('load', eventCallback, false);
+        } else {
+            window.attachEvent('onload', eventCallback);
+        }
+    };
+
+    BlockAdBlock.prototype._creatBait = function() {
+        let bait = document.createElement('div');
+        bait.setAttribute('class', this._options.baitClass);
+        bait.setAttribute('style', this._options.baitStyle);
+        this._var.bait = window.document.body.appendChild(bait);
+
+        this._var.bait.offsetParent;
+        this._var.bait.offsetHeight;
+        this._var.bait.offsetLeft;
+        this._var.bait.offsetTop;
+        this._var.bait.offsetWidth;
+        this._var.bait.clientHeight;
+        this._var.bait.clientWidth;
+
+        if (this._options.debug === true) {
+            this._log('Bait has been created');
+        }
+    };
+    BlockAdBlock.prototype._destroyBait = function() {
+        window.document.body.removeChild(this._var.bait);
+        this._var.bait = null;
+
+        if (this._options.debug === true) {
+            this._log('Bait has been removed');
+        }
+    };
+
+    BlockAdBlock.prototype.check = function(loop) {
+        if (loop === undefined) {
+            loop = true;
+        }
+
+        if (this._options.debug === true) {
+            this._log('Checking...');
+        }
+
+        if (this._var.checking === true) {
+            if (this._options.debug === true) {
+                this._log('Already checking...');
+            }
+            return false;
+        }
+        this._var.checking = true;
+
+        if (this._var.bait === null) {
+            this._creatBait();
+        }
+
+        let self = this;
+        this._var.loopNumber = 0;
+        if (loop === true) {
+            this._var.loop = setInterval(function() {
+                self._checkBait(loop);
+            }, this._options.loopCheckTime);
+        }
+        setTimeout(function() {
+            self._checkBait(loop);
+        }, 1);
+
+        if (this._options.debug === true) {
+            this._log('Checking has been started');
+        }
+
+        return true;
+    };
+
+    BlockAdBlock.prototype._checkBait = function(loop) {
+        let detected = false;
+
+        if (this._var.bait === null) {
+            this._creatBait();
+        }
+
+        if (window.document.body.getAttribute('abp') !== null ||
+            this._var.bait.offsetParent === null ||
+            this._var.bait.offsetHeight == 0 ||
+            this._var.bait.offsetLeft == 0 ||
+            this._var.bait.offsetTop == 0 ||
+            this._var.bait.offsetWidth == 0 ||
+            this._var.bait.clientHeight == 0 ||
+            this._var.bait.clientWidth == 0) {
+            detected = true;
+        }
+        if (window.getComputedStyle !== undefined) {
+            let baitTemp = window.getComputedStyle(this._var.bait, null);
+            if (baitTemp.getPropertyValue('display') == 'none' ||
+                baitTemp.getPropertyValue('visibility') == 'hidden') {
+                detected = true;
+            }
+        }
+
+        if (this._options.debug === true) {
+            this._log('Bait properties: ' +
+                'offsetParent=' + this._var.bait.offsetParent + ', ' +
+                'offsetHeight=' + this._var.bait.offsetHeight + ', ' +
+                'offsetLeft=' + this._var.bait.offsetLeft + ', ' +
+                'offsetTop=' + this._var.bait.offsetTop + ', ' +
+                'offsetWidth=' + this._var.bait.offsetWidth + ', ' +
+                'clientHeight=' + this._var.bait.clientHeight + ', ' +
+                'clientWidth=' + this._var.bait.clientWidth
+            );
+        }
+
+        if (loop === true) {
+            this._var.loopNumber++;
+            if (this._var.loopNumber >= this._options.loopMaxNumber) {
+                this._stopLoop();
+            }
+        }
+
+        if (detected === true) {
+            this._stopLoop();
+            this._destroyBait();
+            this.emitEvent(true);
+            if (loop === true) {
+                this._var.checking = false;
+            }
+        } else if (this._var.loop === null || loop === false) {
+            this._destroyBait();
+            this.emitEvent(false);
+            if (loop === true) {
+                this._var.checking = false;
+            }
+        }
+    };
+    BlockAdBlock.prototype._stopLoop = function() {
+        clearInterval(this._var.loop);
+        this._var.loop = null;
+        this._var.loopNumber = 0;
+
+        if (this._options.debug === true) {
+            this._log('Loop has been stopped');
+        }
+    };
+
+    BlockAdBlock.prototype.emitEvent = function(detected) {
+        if (this._options.debug === true) {
+            this._log('Event e_detected with value ' + detected);
+        }
+
+        let fns = detected ? this._var.event.detected : this._var.event.notDetected;
+        for (let i in fns) {
+            if (this._options.debug === true) {
+                this._log('Call function ' + i + ' in event ' + (detected ? 'e_detected' : 'e_notDetected'));
+            }
+            fns[i]();
+        }
+        if (this._options.resetOnEnd === true) {
+            this.clearEvent();
+        }
+        return this;
+    };
+    BlockAdBlock.prototype.clearEvent = function() {
+        this._var.event.detected = [];
+        this._var.event.notDetected = [];
+
+        if (this._options.debug === true) {
+            this._log('Event has been cleared');
+        }
+    };
+
+    BlockAdBlock.prototype.on = function(detected, fn) {
+        let events = detected ? this._var.event.detected : this._var.event.notDetected;
+        events.push(fn);
+        return this;
+    };
+    BlockAdBlock.prototype.onDetected = function(fn) {
+        return this.on(true, fn);
+    };
+    BlockAdBlock.prototype.onNotDetected = function(fn) {
+        return this.on(false, fn);
+    };
+
+    BlockAdBlock.prototype.setOption = function(options, value) {
+        if (value !== undefined) {
+            let key = options;
+            options = {};
+            options[key] = value;
+        }
+
+        for (let key in options) {
+            this._options[key] = options[key];
+            if (this._options.debug === true) {
+                this._log('Option "' + key + '" has been set to "' + options[key] + '"');
+            }
+        }
+        return this;
+    };
+
+    BlockAdBlock.prototype._log = function(message) {
+        console.log('[BlockAdBlock] ' + message);
+    };
+
+    window.BlockAdBlock = BlockAdBlock;
+    
+    // For backwards compatibility
+    window.blockAdBlock = new BlockAdBlock();
+    
+})(window);
+
+____________________________________
+
+File: ./pages/list/index.html
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/png" href="/images/fav.png">
+    
+    <title>EPISODES</title>
+   <style>
+    body {
+        margin: 0; padding: 0;
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+        background-color: #202124; color: #e8eaed;
+    }
+</style>
+</head>
+
+<body>
+
+    <script type="module">
+        import { createToolbar } from '../../components/basecomponents/Toolbar.js';
+        import { createLayout } from '../../components/basecomponents/Layout.js';
+        import { createLinkList } from '../../components/mainpage/LinkList.js';
+        import { createFooter } from '../../components/basecomponents/Footer.js';
+        import { createWarningBox } from '../../components/dialgoge/WarningBox.js';
+
+        function buildPage() {
+            createToolbar();
+            createLayout();
+            createWarningBox();
+            createLinkList();
+            createFooter();
+        }
+
+        buildPage();
+    </script>
+
+</body>
+</html>
+
+____________________________________
+
+File: ./pages/op1145/index.html
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/png" href="/images/fav.png">
+
+    <script src="../../libs/blockdsablock.js"></script>
+
+    <script async src="https://imasdk.googleapis.com/js/sdkloader/ima3.js"></script>
+    <script id="aclib" type="text/javascript" src="//acscdn.com/script/aclib.js"></script>
+    
+    <title>op1145</title>
+    <style>
+        /* 
+          Apply the base dark theme immediately so the user doesn't see a 
+          flash of a white screen while the JavaScript components load.
+        */
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: #202124;
+            color: #e8eaed;
+        }
+
+        /* --- NEW: This is the critical fix --- */
+        /* This style block centers all components placed inside the main layout area. */
+        .content-area {
+            /* 1. Use Flexbox for powerful alignment */
+            display: flex;
+
+            /* 2. Stack the components vertically */
+            flex-direction: column;
+
+            /* 3. Center all components horizontally */
+            align-items: center;
+        }
+
+    </style>
+</head>
+<body>
+    <!--
+        This is the most important part. We load our main.js file as a module,
+        which will take over and build the rest of the page.
+    -->
+    <script type="module" src="./main.js"></script>
+</body>
+</html>
+
+____________________________________
+
+File: ./pages/op1145/main.js
+
+// pages/op1145/main.js
+
+import { createToolbar } from '../../components/basecomponents/Toolbar.js';
+import { createLayout } from '../../components/basecomponents/Layout.js';
+import { createFooter } from '../../components/basecomponents/Footer.js';
+import { createWelcomePopup } from '../../components/dialgoge/WelcomePopup.js';
+import { createAdPlayer } from '../../components/player/dasPlayer.js';
+import { createPlayer } from '../../components/player/Player.js';
+import { createAdLayout } from '../../components/das/layout.js';
+// NEW: Import the adblock checker, adjusting the path.
+import { runAdblockCheck } from '../../utils/dsablockerCheck.js';
+
+function adjustAdLayoutPosition(visiblePlayerElement) {
+    const toolbar = document.querySelector('.top-bar');
+    const adLayout = document.querySelector('.ad-layout-container');
+    if (!toolbar || !visiblePlayerElement || !adLayout) return;
+
+    const viewportHeight = window.innerHeight;
+    const toolbarHeight = toolbar.offsetHeight;
+    const playerHeight = visiblePlayerElement.offsetHeight;
+    const remainingSpace = viewportHeight - toolbarHeight - playerHeight;
+    adLayout.style.marginTop = remainingSpace > 0 ? `${remainingSpace}px` : '0px';
+}
+
+async function buildPage() {
+    createToolbar();
+    createLayout();
+    createFooter();
+
+    const videoIframes = [
+        { name: 'HD', embedCode: `<iframe src="https://streamtape.com/e/r3z0WBYmPYFGme/" allowfullscreen allowtransparency allow="autoplay" scrolling="no" frameborder="0"</iframe>` },
+        { name: 'SD', embedCode: `<iframe src="https://streamtape.com/e/29woogJPeqfZLmp/" allowfullscreen allowtransparency allow="autoplay" scrolling="no" frameborder="0"</iframe>` }
+    ];
+
+    createPlayer(videoIframes);
+    createAdPlayer(() => {
+        const mainPlayer = document.getElementById('main-content-player');
+        if (mainPlayer) {
+            mainPlayer.classList.remove('hidden');
+            setTimeout(() => {
+                adjustAdLayoutPosition(mainPlayer);
+            }, 0);
+        }
+    });
+    createAdLayout();
+
+    await createWelcomePopup();
+
+    const adPlayer = document.getElementById('ad-player-scaffold');
+    adjustAdLayoutPosition(adPlayer);
+
+    // NEW: Run the adblock check as the final step.
+    runAdblockCheck();
+}
+
+document.addEventListener('DOMContentLoaded', buildPage);
 
 ____________________________________
 
